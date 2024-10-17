@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Task Manager</h1>
+    <form action="/add" method="POST">
+        <input type="text" name="title" placeholder="Task Title" required>
+        <input type="number" name="time" placeholder="Time (minutes)" required>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <ul>
+        {% for task in tasks %}
+            <li>
+                {{ task.title }} - {{ task.deadline.strftime('%Y-%m-%d %H:%M:%S') }}
+                {% if not task.completed %}
+                    <a href="{{ url_for('complete_task', task_id=loop.index0) }}">Complete</a>
+                {% endif %}
+                <a href="{{ url_for('delete_task', task_id=loop.index0) }}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div id="notifications"></div>
+
+    <script>
+        const socket = io();
+
+        socket.on('notification', (data) => {
+            const notifications = document.getElementById('notifications');
+            const message = document.createElement('p');
+            message.textContent = data.message;
+            notifications.appendChild(message);
+        });
+    </script>
+</body>
+</html>
